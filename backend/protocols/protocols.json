@@ -1,0 +1,17 @@
+{
+  "math": {
+    "intent_keywords": ["solve", "calculate", "equation", "find x", "value of"],
+    "agent": "SolverX",
+    "service": "math_service"
+  },
+  "concept": {
+    "intent_keywords": ["explain", "what is", "define", "difference between"],
+    "agent": "Concepto",
+    "service": "llm_service"
+  },
+  "mental_health": {
+    "intent_keywords": ["stress", "anxious", "tired", "depressed"],
+    "agent": "Mentora",
+    "service": "wellness"
+  }
+}

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from services.mcp import handle_query
+from services.mcp import route_query
 
 router = APIRouter()
 

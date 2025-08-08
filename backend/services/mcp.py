@@ -1,23 +1,37 @@
-from services.llm_service import ask_llm
+import json
+import os
 from services.math_service import solve_math
-import re
+from services.llm_service import ask_llm
 
-def is_math(query: str) -> bool:
-    math_keywords = ["solve", "equation", "calculate"]
-    if any(word in query.lower() for word in math_keywords):
-        return True
+def load_protocols():
+    with open(os.path.join(os.path.dirname(__file__), "../protocols/protocols.json")) as f:
+        return json.load(f)
 
-    math_pattern = r'[\d\s]*[+\-*/^=]+[\d\s]*'
-    return bool(re.search(math_pattern, query))
+protocols = load_protocols()
 
-def is_wellness(query: str) -> bool:
-    keywords = ["stress", "anxiety", "mental health", "tired", "sleep", "depressed"]
-    return any(word in query.lower() for word in keywords)
+async def route_query(query: str) -> dict:
+    query_lower = query.lower()
+    for key, data in protocols.items():
+        if any(word in query_lower for word in data["intent_keywords"]):
+            if data["service"] == "math_service":
+                response = solve_math(query)
+            elif data["service"] == "llm_service":
+                response = await ask_llm(query)
+            elif data["service"] == "wellness":
+                response = "I'm here for you. Stay strong and take care of your mental well-being."
+            else:
+                response = "Unknown service"
+            return {
+                "agent": data["agent"],
+                "intent": key,
+                "response": response
+            }
+    
+    # Default fallback
+    response = await ask_llm(query)
+    return {
+        "agent": "Fallback LLM",
+        "intent": "general",
+        "response": response
+    }
 
-async def handle_query(query: str) -> str:
-    if is_math(query):
-        return solve_math(query)
-    elif is_wellness(query):
-        return "I'm here for you. It’s okay to feel this way. Try taking deep breaths or talking to a friend ❤️"
-    else:
-        return await ask_llm(query)
